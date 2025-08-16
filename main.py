@@ -37,7 +37,8 @@ def processar_pdf(pdf_path):
                 else:
                     m = padrao.match(linha)
                     if m:
-                        data = m.group(1)
+                        data_str = m.group(1) + "/" + ano   # vira dd/MM/YYYY
+                        data = datetime.strptime(data_str, "%d/%m/%Y")
                         descricao = m.group(2).strip()
                         valor = converte_valor(m.group(3))
                         dados.append([data, descricao, valor, None])
@@ -69,8 +70,11 @@ df_final = pd.concat(todos_dfs, ignore_index=True)
 
 # Ordenar por ano, mês e data
 # (Se os meses forem nomes, podemos depois criar um dicionário para ordenar corretamente)
-df_final.sort_values(by=["Ano", "Mês", "Data"], inplace=True)
+#df_final.sort_values(by=["Ano", "Mês", "Data"], inplace=True)
+#df_final.sort_values(by=["Data"], inplace=True)
 
+# Converter Data para string no formato dd/MM/yyyy
+df_final["Data"] = df_final["Data"].dt.strftime("%d/%m/%Y")
 # Exportar para Excel consolidado
 output_path = os.path.join(base_path, "extrato_consolidado.xlsx")
 df_final.to_excel(output_path, index=False)
