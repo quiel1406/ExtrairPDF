@@ -2,6 +2,8 @@ import os
 import re
 import pdfplumber
 import pandas as pd
+from datetime import datetime
+
 
 # Pasta raiz onde estão os anos
 base_path = r"C:\Projetos\ExtrairPDF\docs\2025\Janeiro"
@@ -16,6 +18,8 @@ def converte_valor(valor_str):
 def processar_pdf(pdf_path):
     """Lê um PDF de extrato e retorna um DataFrame"""
     dados = []
+    ano = os.path.basename(os.path.dirname(os.path.dirname(pdf_path)))  # ex: "2025"
+    mes = os.path.basename(os.path.dirname(pdf_path))  # ex: "Março"
     with pdfplumber.open(pdf_path) as pdf:
         for pagina in pdf.pages:
             linhas = pagina.extract_text().split("\n")
@@ -23,12 +27,13 @@ def processar_pdf(pdf_path):
                 linha = linha.strip()
 
                 # Caso especial: linhas com saldo
-                if ("SALDO ANTERIOR" in linha or "SALDO" in linha) and linha.endswith(",00"):
+                if ("SALDO ANTERIOR" in linha or "SALDO" in linha or "SDO" in linha) and ("," in linha):
                     partes = linha.split()
-                    data = partes[0]
+                    data_str = partes[0] + "/" + ano   # vira dd/MM/YYYY
+                    data = datetime.strptime(data_str, "%d/%m/%Y")
                     descricao = " ".join(partes[1:-1])
                     valor = converte_valor(partes[-1])
-                    dados.append([data, descricao, valor, None])
+                    dados.append([data, descricao, None, valor])
                 else:
                     m = padrao.match(linha)
                     if m:
@@ -40,8 +45,7 @@ def processar_pdf(pdf_path):
     df = pd.DataFrame(dados, columns=["Data", "Descrição", "Valor (R$)", "Saldo (R$)"])
     
     # Adiciona colunas auxiliares para facilitar o consolidado
-    ano = os.path.basename(os.path.dirname(os.path.dirname(pdf_path)))  # ex: "2025"
-    mes = os.path.basename(os.path.dirname(pdf_path))  # ex: "Março"
+    
     df["Ano"] = ano
     df["Mês"] = mes
 
