@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 # Pasta raiz onde estão os anos
-base_path = r"C:\Projetos\ExtrairPDF\docs\2020"
+base_path = r"C:\Projetos\ExtrairPDF\docs\2022\Julho"
 
 
 # Regex antigo: "dd/MM descrição valor"
