@@ -1,6 +1,6 @@
-# Primeiro README
+# Extrator de PDF 
 
 
 ## Vamos iniciar no GITHUB
 
-Aqui vamos aprender todos os macetes
+Codigo desenvolvido em python que quebra as informaçoes do extrato bancario
